@@ -9,20 +9,23 @@ def american_to_decimal(odds):
     return 1 + (abs(odds) / 100) if odds > 0 else 1 + (100 / abs(odds))
 
 def calc_bet(line, win_pct):
-    sigma = 0.4
+    # Convert American to Decimal
     if line > 0:
-        odds = line / 100 + 1
+        decimal_odds = line / 100 + 1
     else:
-        odds = 1 - (100 / line)
+        decimal_odds = 1 - (100 / line)
 
-    num = pow((win_pct * odds - 1), 3)
-    den = (odds - 1) * (pow((win_pct * odds - 1), 2) + (pow(odds, 2) * sigma))
-    f_star = round(100 * (num / den), 2)
+    b = decimal_odds - 1
+    p = win_pct
+    q = 1 - p
 
-    if f_star > 0:
-        return f'{f_star}% of bankroll'
+    kelly_fraction = (b * p - q) / b
+
+    if kelly_fraction > 0:
+        return f"{round(100 * kelly_fraction, 2)}% of bankroll"
     else:
-        return 'Bet not advised'
+        return "Bet not advised"
+
 
 st.set_page_config(page_title="🎾 Tennis Diff‑Based Predictor", layout="wide")
 st.title("🎾 Tennis Match Predictor")
