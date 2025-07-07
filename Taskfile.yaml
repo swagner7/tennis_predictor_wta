@@ -1,0 +1,54 @@
+version: '3'
+
+tasks:
+  ingest:
+    desc: 📥 Merge raw Excel files into one CSV
+    cmds:
+      - python3 src/ingest.py
+
+  preprocess:
+    desc: 🧼 Clean data and convert to player1/player2 format
+    deps: [ingest]
+    cmds:
+      - python3 src/preprocess.py
+
+  elo:
+    desc: 🧠 Compute and inject global/surface Elo ratings
+    cmds:
+      - python3 src/feature_engineering.py
+
+  evaluate:
+    cmds:
+      - python src/evaluate_features.py
+    desc: Generate feature distribution plots and correlation heatmap
+
+  train:
+    desc: 🧠 Train ML model and save best one
+    cmds:
+      - python3 src/train_model.py
+
+  compare_odds:
+    cmds:
+      - python src/compare_odds_impact.py
+    desc: Compare model performance with and without odds features
+
+
+  predict:
+    desc: 🔮 Run prediction script (WIP)
+    cmds:
+      - python3 src/predict.py
+
+  app:
+    desc: 🎾 Launch Streamlit predictor
+    cmds:
+      - streamlit run app/streamlit_app.py
+
+  all:
+    desc: 🔄 Run full pipeline
+    cmds:
+      - task ingest
+      - task preprocess
+      - task elo
+      - task train
+      - task evaluate
+      - task app
