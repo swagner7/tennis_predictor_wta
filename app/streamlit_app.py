@@ -13,13 +13,10 @@ def calc_bet(line, win_pct):
     if line > 0:
         decimal_odds = line / 100 + 1
     else:
-        decimal_odds = 1 - (100 / line)
-
-    b = decimal_odds - 1
-    p = win_pct
-    q = 1 - p
-
-    kelly_fraction = (b * p - q) / b
+        odds = 1 - (100 / line)
+    num = pow((win_pct * odds - 1), 3)
+    den = (odds - 1) * (pow((win_pct * odds - 1), 2) + (pow(odds, 2) * sigma))
+    f_star = round(100 * (num / den), 2)
 
     if kelly_fraction > 0:
         return f"{round(100 * kelly_fraction, 2)}% of bankroll"
