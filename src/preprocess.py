@@ -1,4 +1,3 @@
-# src/preprocess.py
 import pandas as pd
 import os
 import numpy as np
@@ -20,11 +19,11 @@ def preprocess():
     rows = []
     for _, r in df.iterrows():
         common = {
-            'ATP': r.ATP,
+            'WTA': r.WTA,
             'Location': r.Location,
             'Tournament': r.Tournament,
             'Date': r.Date,
-            'Series': r.Series,
+            'Tier': r.Tier,
             'Court': r.Court,
             'Surface': r.Surface,
             'Round': r.Round,

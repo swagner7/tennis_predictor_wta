@@ -24,7 +24,7 @@ CSV_RESULTS_PATH = os.path.join("models", "training_results.csv")
 os.makedirs("models", exist_ok=True)
 
 FEATURES = [
-    "elo_diff", "surface_elo_diff", "series_elo_diff", "round_elo_diff",
+    "elo_diff", "surface_elo_diff", "tier_elo_diff", "round_elo_diff",
     "h2h_diff", "form5_diff", "form20_diff",
     "experience_diff", "days_since_last_diff",
     "streak_diff", "rank_diff"
@@ -54,7 +54,7 @@ def train():
     base_models = {
         "LogisticRegression": Pipeline([("scale", StandardScaler()), ("model", LogisticRegression(max_iter=1000))]),
         "RidgeClassifier": Pipeline([("scale", StandardScaler()), ("model", RidgeClassifier())]),
-        "SVC": Pipeline([("scale", StandardScaler()), ("model", SVC(probability=True))]),
+        # "SVC": Pipeline([("scale", StandardScaler()), ("model", SVC(probability=True))]),
         "KNN": Pipeline([("scale", StandardScaler()), ("model", KNeighborsClassifier())]),
         "MLP": Pipeline([("scale", StandardScaler()), ("model", MLPClassifier(hidden_layer_sizes=(64,), max_iter=500))]),
         "RandomForest": Pipeline([("scale", StandardScaler()), ("model", RandomForestClassifier(n_estimators=100))]),

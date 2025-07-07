@@ -10,13 +10,13 @@ model = joblib.load(MODEL_PATH)
 data = pd.read_csv(DATA_PATH, parse_dates=["Date"])
 
 FEATURE_COLS = [
-    "elo_diff", "surface_elo_diff", "series_elo_diff", "round_elo_diff",
+    "elo_diff", "surface_elo_diff", "tier_elo_diff", "round_elo_diff",
     "h2h_diff", "form5_diff", "form20_diff", "rank_diff",
     "experience_diff", "days_since_last_diff", "streak_diff"
 ]
 
 
-def get_latest_player_features(player, opponent, surface, series, round_name):
+def get_latest_player_features(player, opponent, surface, tier, round_name):
     # Sort descending to get most recent
     recent = data[(data['player1'] == player) | (data['player2'] == player)].sort_values("Date", ascending=False)
 
@@ -36,12 +36,12 @@ def get_latest_player_features(player, opponent, surface, series, round_name):
         srow = surface_matches.sort_values("Date", ascending=False).iloc[0]
         surf_elo = srow["Surface_Elo_2"] if srow["player2"] == player else srow["Surface_Elo_1"]
 
-    # Series Elo
-    series_elo = 1500
-    series_matches = data[((data['player1'] == player) | (data['player2'] == player)) & (data["Series"] == series)]
-    if not series_matches.empty:
-        srow = series_matches.sort_values("Date", ascending=False).iloc[0]
-        series_elo = srow["series_elo_2"] if srow["player2"] == player else srow["series_elo_1"]
+    # Tier Elo
+    tier_elo = 1500
+    tier_matches = data[((data['player1'] == player) | (data['player2'] == player)) & (data["Tier"] == tier)]
+    if not tier_matches.empty:
+        srow = tier_matches.sort_values("Date", ascending=False).iloc[0]
+        tier_elo = srow["tier_elo_2"] if srow["player2"] == player else srow["tier_elo_1"]
 
     # Round Elo
     round_elo = 1500
@@ -61,7 +61,7 @@ def get_latest_player_features(player, opponent, surface, series, round_name):
     return {
         "Elo": col("Elo"),
         "Surface_Elo": surf_elo,
-        "Series_Elo": series_elo,
+        "Tier_Elo": tier_elo,
         "Round_Elo": round_elo,
         "h2h": h2h_1,
         "form_5": col("form_5"),
@@ -73,15 +73,15 @@ def get_latest_player_features(player, opponent, surface, series, round_name):
     }
 
 
-def predict_match(player1, player2, surface, series, round_name):
-    p1 = get_latest_player_features(player1, player2, surface, series, round_name)
-    p2 = get_latest_player_features(player2, player1, surface, series, round_name)
+def predict_match(player1, player2, surface, tier, round_name):
+    p1 = get_latest_player_features(player1, player2, surface, tier, round_name)
+    p2 = get_latest_player_features(player2, player1, surface, tier, round_name)
 
     # Diffs for prediction model
     X = [[
         p1['Elo'] - p2['Elo'],
         p1['Surface_Elo'] - p2['Surface_Elo'],
-        p1['Series_Elo'] - p2['Series_Elo'],
+        p1['Tier_Elo'] - p2['Tier_Elo'],
         p1['Round_Elo'] - p2['Round_Elo'],
         p1['h2h'] - p2['h2h'],
         p1['form_5'] - p2['form_5'],

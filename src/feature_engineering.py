@@ -23,7 +23,7 @@ def add_elo_and_features():
 
     # Initialize trackers
     elo = EloTracker()
-    series_elo = EloTracker()
+    tier_elo = EloTracker()
     round_elo = EloTracker()
     h2h = defaultdict(lambda: {"p1_wins": 0, "p2_wins": 0})
     match_counts = defaultdict(int)
@@ -35,7 +35,7 @@ def add_elo_and_features():
     # Define feature columns
     cols = [
         "Elo_1", "Elo_2", "Surface_Elo_1", "Surface_Elo_2",
-        "series_elo_1", "series_elo_2",
+        "tier_elo_1", "tier_elo_2",
         "round_elo_1", "round_elo_2",
         "h2h_1", "h2h_2", "form_5_1", "form_5_2",
         "form_20_1", "form_20_2",
@@ -47,14 +47,14 @@ def add_elo_and_features():
 
     for _, row in df.iterrows():
         p1, p2 = row["player1"], row["player2"]
-        surface, series, rnd = row["Surface"], row["Series"], row["Round"]
+        surface, tier, rnd = row["Surface"], row["Tier"], row["Round"]
         winner = p1 if row["player1_won"] == 1 else p2
 
         # Record Elo before match
         e1, s1 = elo.get_elo(p1, surface)[0], elo.get_elo(p1, surface)[1]
         e2, s2 = elo.get_elo(p2, surface)[0], elo.get_elo(p2, surface)[1]
-        se1 = series_elo.get_elo(p1, series)[1]
-        se2 = series_elo.get_elo(p2, series)[1]
+        se1 = tier_elo.get_elo(p1, tier)[1]
+        se2 = tier_elo.get_elo(p2, tier)[1]
         re1 = round_elo.get_elo(p1, rnd)[1]
         re2 = round_elo.get_elo(p2, rnd)[1]
 
@@ -62,8 +62,8 @@ def add_elo_and_features():
         features["Elo_2"].append(e2)
         features["Surface_Elo_1"].append(s1)
         features["Surface_Elo_2"].append(s2)
-        features["series_elo_1"].append(se1)
-        features["series_elo_2"].append(se2)
+        features["tier_elo_1"].append(se1)
+        features["tier_elo_2"].append(se2)
         features["round_elo_1"].append(re1)
         features["round_elo_2"].append(re2)
 
@@ -93,7 +93,7 @@ def add_elo_and_features():
 
         # Update Elo trackers
         elo.update_elo(p1, p2, winner, surface)
-        series_elo.update_elo(p1, p2, winner, series)
+        tier_elo.update_elo(p1, p2, winner, tier)
         round_elo.update_elo(p1, p2, winner, rnd)
 
         # Update H2H counts
@@ -132,7 +132,7 @@ def add_elo_and_features():
     diff_map = {
         "elo_diff": ("Elo_1", "Elo_2"),
         "surface_elo_diff": ("Surface_Elo_1", "Surface_Elo_2"),
-        "series_elo_diff": ("series_elo_1", "series_elo_2"),
+        "tier_elo_diff": ("tier_elo_1", "tier_elo_2"),
         "round_elo_diff": ("round_elo_1", "round_elo_2"),
         "h2h_diff": ("h2h_1", "h2h_2"),
         "form5_diff": ("form_5_1", "form_5_2"),
