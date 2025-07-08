@@ -11,8 +11,8 @@ data = pd.read_csv(DATA_PATH, parse_dates=["Date"])
 
 FEATURE_COLS = [
     "elo_diff", "surface_elo_diff", "tier_elo_diff", "round_elo_diff",
-    "h2h_diff", "form5_diff", "form20_diff", "rank_diff",
-    "experience_diff", "days_since_last_diff", "streak_diff"
+    "h2h_diff", "form5_diff", "form20_diff", "rankpts_diff",
+    "experience_diff", "days_since_last_diff"
 ]
 
 
@@ -66,10 +66,9 @@ def get_latest_player_features(player, opponent, surface, tier, round_name):
         "h2h": h2h_1,
         "form_5": col("form_5"),
         "form_20": col("form_20"),
-        "Rank": col("Rank"),
+        "RankPts": col("RankPts"),
         "experience": col("experience"),
         "days_since_last": col("days_since_last"),
-        "streak": col("streak"),
     }
 
 
@@ -86,10 +85,9 @@ def predict_match(player1, player2, surface, tier, round_name):
         p1['h2h'] - p2['h2h'],
         p1['form_5'] - p2['form_5'],
         p1['form_20'] - p2['form_20'],
-        p1['Rank'] - p2['Rank'],
+        p1['RankPts'] - p2['RankPts'],
         p1['experience'] - p2['experience'],
-        p1['days_since_last'] - p2['days_since_last'],
-        p1['streak'] - p2['streak'],
+        p1['days_since_last'] - p2['days_since_last']
     ]]
 
     prob = model.predict_proba(X)[0][1]

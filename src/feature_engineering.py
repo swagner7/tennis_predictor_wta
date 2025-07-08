@@ -29,7 +29,6 @@ def add_elo_and_features():
     match_counts = defaultdict(int)
     form_5 = defaultdict(lambda: deque(maxlen=5))
     form_20 = defaultdict(lambda: deque(maxlen=20))
-    streak = defaultdict(int)
     last_date = {}
 
     # Define feature columns
@@ -40,8 +39,7 @@ def add_elo_and_features():
         "h2h_1", "h2h_2", "form_5_1", "form_5_2",
         "form_20_1", "form_20_2",
         "experience_1", "experience_2",
-        "days_since_last_1", "days_since_last_2",
-        "streak_1", "streak_2"
+        "days_since_last_1", "days_since_last_2"
     ]
     features = {c: [] for c in cols}
 
@@ -87,10 +85,6 @@ def add_elo_and_features():
         features["days_since_last_1"].append((row["Date"] - last_date.get(p1, row["Date"])).days)
         features["days_since_last_2"].append((row["Date"] - last_date.get(p2, row["Date"])).days)
 
-        # Streak before match
-        features["streak_1"].append(streak[p1])
-        features["streak_2"].append(streak[p2])
-
         # Update Elo trackers
         elo.update_elo(p1, p2, winner, surface)
         tier_elo.update_elo(p1, p2, winner, tier)
@@ -112,14 +106,6 @@ def add_elo_and_features():
         match_counts[p1] += 1
         match_counts[p2] += 1
 
-        # Update streak
-        if winner == p1:
-            streak[p1] = streak[p1] + 1 if streak[p1] > 0 else 1
-            streak[p2] = streak[p2] - 1 if streak[p2] < 0 else -1
-        else:
-            streak[p2] = streak[p2] + 1 if streak[p2] > 0 else 1
-            streak[p1] = streak[p1] - 1 if streak[p1] < 0 else -1
-
         # Update last played dates
         last_date[p1] = row["Date"]
         last_date[p2] = row["Date"]
@@ -139,14 +125,13 @@ def add_elo_and_features():
         "form20_diff": ("form_20_1", "form_20_2"),
         "experience_diff": ("experience_1", "experience_2"),
         "days_since_last_diff": ("days_since_last_1", "days_since_last_2"),
-        "streak_diff": ("streak_1", "streak_2"),
-        "rank_diff": ("Rank_1", "Rank_2")
+        "rankpts_diff": ("RankPts_1", "RankPts_2")
     }
     for new_col, (c1, c2) in diff_map.items():
         df[new_col] = df[c1] - df[c2]
 
     # # Remove outliers
-    # for c in ["Rank_1", "Rank_2", "h2h_1", "h2h_2"]:
+    # for c in ["RankPts_1", "RankPts_2", "h2h_1", "h2h_2"]:
     #     df = remove_outliers_with_logging(df, c)
 
     df.to_csv(OUT_PATH, index=False)

@@ -13,8 +13,7 @@ os.makedirs(PLOT_DIR, exist_ok=True)
 FEATURES = [
     "elo_diff", "surface_elo_diff", "tier_elo_diff", "round_elo_diff",
     "h2h_diff", "form5_diff", "form20_diff",
-    "experience_diff", "days_since_last_diff",
-    "streak_diff", "rank_diff"
+    "experience_diff", "days_since_last_diff", "rankpts_diff"
 ]
 TARGET = "player1_won"
 

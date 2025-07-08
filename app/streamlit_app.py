@@ -34,7 +34,7 @@ surfaces = sorted(data['Surface'].dropna().unique())
 tier_options = sorted(data['Tier'].dropna().unique())
 rounds = sorted(data['Round'].dropna().unique())
 
-# Player + Surface + tier + Round selection
+# Player + Surface + Tier + Round selection
 col1, col2 = st.columns(2)
 with col1:
     player1 = st.selectbox("Player 1", players, index=0)
@@ -87,19 +87,19 @@ else:
         st.subheader("📊 Player Stats Comparison")
         stats_df = pd.DataFrame({
             'Stat': [
-                "Global Elo", "Surface Elo", "Tier Elo", "Round Elo",
+                "RankPts", "Global Elo", "Surface Elo", "Tier Elo", "Round Elo",
                 "Head-to-Head", "Form (5)", "Form (20)", "Experience",
-                "Days Since Last", "Streak", "Rank"
+                "Days Since Last"
             ],
             player1: [
-                p1_stats['Elo'], p1_stats['Surface_Elo'], p1_stats['Tier_Elo'], p1_stats['Round_Elo'],
+                p1_stats['RankPts'], p1_stats['Elo'], p1_stats['Surface_Elo'], p1_stats['Tier_Elo'], p1_stats['Round_Elo'],
                 p1_stats['h2h'], p1_stats['form_5'], p1_stats['form_20'], p1_stats['experience'],
-                p1_stats['days_since_last'], p1_stats['streak'], p1_stats['Rank']
+                p1_stats['days_since_last']
             ],
             player2: [
-                p2_stats['Elo'], p2_stats['Surface_Elo'], p2_stats['Tier_Elo'], p2_stats['Round_Elo'],
+                p2_stats['RankPts'], p2_stats['Elo'], p2_stats['Surface_Elo'], p2_stats['Tier_Elo'], p2_stats['Round_Elo'],
                 p2_stats['h2h'], p2_stats['form_5'], p2_stats['form_20'], p2_stats['experience'],
-                p2_stats['days_since_last'], p2_stats['streak'], p2_stats['Rank']
+                p2_stats['days_since_last']
             ]
         })
         st.dataframe(stats_df.set_index("Stat"))
@@ -112,9 +112,9 @@ else:
         if h2h_hist.empty:
             st.write("No direct match history")
         else:
-            display = h2h_hist[['Date', 'Tournament', 'Surface', 'player1', 'player2', 'player1_won']].copy()
+            display = h2h_hist[['Date', 'Tournament', 'Surface', 'Round', 'player1', 'player2', 'player1_won']].copy()
             display['Winner'] = display.apply(lambda r: r['player1'] if r['player1_won'] == 1 else r['player2'], axis=1)
-            st.dataframe(display.drop(columns=['player1_won']))
+            st.dataframe(display.drop(columns=['player1_won', 'player1', 'player2']))
 
     except ValueError as e:
         st.error(str(e))

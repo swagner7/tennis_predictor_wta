@@ -1,3 +1,4 @@
+# src/preprocess.py
 import pandas as pd
 import os
 import numpy as np
@@ -34,8 +35,8 @@ def preprocess():
             rows.append({**common,
                          'player1': r.Winner,
                          'player2': r.Loser,
-                         'Rank_1': r.WRank,
-                         'Rank_2': r.LRank,
+                         'RankPts_1': r.WPts,
+                         'RankPts_2': r.LPts,
                          'Odds_1': r.AvgW,
                          'Odds_2': r.AvgL,
                          'player1_won': 1})
@@ -43,8 +44,8 @@ def preprocess():
             rows.append({**common,
                          'player1': r.Loser,
                          'player2': r.Winner,
-                         'Rank_1': r.LRank,
-                         'Rank_2': r.WRank,
+                         'RankPts_1': r.LPts,
+                         'RankPts_2': r.WPts,
                          'Odds_1': r.AvgL,
                          'Odds_2': r.AvgW,
                          'player1_won': 0})
