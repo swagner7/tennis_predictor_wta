@@ -10,16 +10,21 @@ MODEL_PATH = "models/best_model.pkl"
 PLOT_DIR = "reports/figures"
 os.makedirs(PLOT_DIR, exist_ok=True)
 
+TARGET = "player1_won"
+
+# Load dataset and model
+df = pd.read_csv(PROCESSED, parse_dates=["Date"])
+model = joblib.load(MODEL_PATH)
+
+# Directly specify the active features
 FEATURES = [
     "elo_diff", "surface_elo_diff", "tier_elo_diff", "round_elo_diff",
     "h2h_diff", "form5_diff", "form20_diff",
     "experience_diff", "days_since_last_diff", "rankpts_diff"
 ]
-TARGET = "player1_won"
 
-df = pd.read_csv(PROCESSED, parse_dates=["Date"])
+# Drop rows with missing values in those features
 df = df.dropna(subset=FEATURES)
-
 X = df[FEATURES]
 y = df[TARGET]
 
@@ -33,17 +38,16 @@ for col in FEATURES:
     plt.close()
 
 # 2️⃣ Plot correlations
-plt.figure(figsize=(10, 8))
-sns.heatmap(X.corr(), annot=True, cmap="coolwarm", fmt=".2f")
+corr = X.corr()
+plt.figure(figsize=(10, 6))
+sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f")
 plt.title("Feature Correlation Heatmap")
 plt.tight_layout()
 plt.savefig(os.path.join(PLOT_DIR, "correlation_heatmap.png"))
 plt.close()
 
 # 3️⃣ Feature importance
-model = joblib.load(MODEL_PATH)
 base = model.named_steps["model"] if hasattr(model, "named_steps") else model
-
 try:
     importances = base.feature_importances_
     source = "model"
@@ -52,16 +56,16 @@ except AttributeError:
     importances = perm.importances_mean
     source = "permutation"
 
-imp_df = pd.DataFrame({"Feature": FEATURES, "Importance": importances})
-imp_df = imp_df.sort_values("Importance", ascending=False)
+# Ensure proper mapping
+if len(importances) != len(FEATURES):
+    raise ValueError(f"Mismatch: {len(importances)} importances vs {len(FEATURES)} features")
+
+# 4️⃣ Plot feature importances
+imp_df = pd.DataFrame({"Feature": FEATURES, "Importance": importances}).sort_values("Importance", ascending=False)
 print(imp_df)
 
-plt.figure(figsize=(8, 4))
-sns.barplot(
-    data=imp_df,
-    x="Importance", y="Feature",
-    hue="Feature", dodge=False, legend=False, palette="viridis"
-)
+plt.figure(figsize=(10, 0.5 * len(imp_df)))
+sns.barplot(data=imp_df, x="Importance", y="Feature", palette="viridis", dodge=False)
 plt.title(f"Feature Importance ({source})")
 plt.tight_layout()
 plt.savefig(os.path.join(PLOT_DIR, "feature_importance.png"))
